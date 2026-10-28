@@ -81,20 +81,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # TEMPORAIRE : a supprimer une fois le probleme resolu
-      - name: Diagnostic secrets
+      - name: Connexion a Docker Hub
         env:
           U: ${{ secrets.DOCKERHUB_USERNAME }}
           T: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          echo "longueur username : ${#U}"
-          echo "longueur token : ${#T}"
-
-      - name: Connexion a Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          USER_CLEAN=$(printf '%s' "$U" | LC_ALL=C tr -cd 'A-Za-z0-9_-')
+          printf '%s' "$T" | LC_ALL=C tr -cd 'A-Za-z0-9_-' | docker login -u "$USER_CLEAN" --password-stdin
 
       - name: Calcul des tags
         id: meta
